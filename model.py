@@ -13,7 +13,7 @@ def generator(z, y, train = True):
     h1 = tf.nn.relu(batch_norm_layer(fully_connected(z, 1024, 'g_fully_connected1'), is_train=train, name='g_bn1'))
 
     h1 = tf.concat(1, [h1, y], name='active1_concat_y')
-    h2 = tf.nn.relu(batch_norm_layer(fully_connected(h1, 128 * 48), 'g_fully_connected2'),is_train=train, name='g_bn2')
+    h2 = tf.nn.relu(batch_norm_layer(fully_connected(h1, 128 * 48), 'g_fully_connected2'), is_train=train, name='g_bn2')
     h2 = tf.reshape(h2, [64, 7,7,128], name='h2_reshape')
     h2 = conv_cond_concat(h2, yb, name='activate2_concat_y')
     h3 = tf.nn.relu(batch_norm_layer(deconv2d(h2, [64,14,14,128], name='g_deconv2d3'), is_train=train, name='g_bn3'))

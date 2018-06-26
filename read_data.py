@@ -5,7 +5,7 @@ import os
 
 def read_data():
     # 数据目录
-    data_dir = '~/PycharmProjects/DCGAN/data/minist'
+    data_dir = './data/minist'
 
     fd = open(os.path.join(data_dir, 'train_image_idx3_ubyte'))
     # 转换成numpy数组
