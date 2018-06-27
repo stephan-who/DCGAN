@@ -19,18 +19,18 @@ def train():
     z = tf.placeholder(tf.float32, [None, 100], name='z')
 
     #由生成器生成图像G
+    with tf.variable_scope("for_reuse_scope"):
+        G = generator(z, y)
+        #真实图像送入判别器
+        D, D_logits = discriminator(images, y)
 
-    G = generator(z, y)
-    #真实图像送入判别器
-    D, D_logits = discriminator(images, y)
+        samples = sampler(z,y)
+        D_, D_logits_ = discriminator(G, y, reuse=True)
 
-    samples = sampler(z,y)
-    D_, D_logits_ = discriminator(G, y, reuse=True)
-
-    d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(D_logits, tf.ones_like(D)))
-    d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(D_logits_, tf.zeros_like(D_)))
+    d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=D_logits, logits= tf.ones_like(D)))
+    d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=D_logits_, logits=tf.zeros_like(D_)))
     d_loss = d_loss_real + d_loss_fake
-    g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(D_logits_, tf.ones_like(D_)))
+    g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=D_logits_, logits=tf.ones_like(D_)))
 
     z_sum = tf.summary.histogram("z",z)
     d_sum = tf.summary.histogram("d",D)
@@ -54,6 +54,7 @@ def train():
     saver = tf.train.Saver()
 
     #优化算法采用Adam
+
     d_optim = tf.train.AdamOptimizer(0.0002, beta1= 0.5).minimize(d_loss, var_list=d_vars, global_step=global_step)
     g_optim = tf.train.AdamOptimizer(0.0002, beta1= 0.5).minimize(g_loss, var_list=g_vars, global_step=global_step)
 
@@ -100,7 +101,7 @@ def train():
 
             if idx %100 ==1:
                 sample = sess.run(samples, feed_dict={z:sample_z, y:sample_labels})
-                samples_path = '../samples/'
+                samples_path = os.getcwd()+'/samples/'
                 save_image(sample, [8,8], samples_path + 'test_%d_epoch_%d.png' %(epoch, idx))
                 print('save down')
 

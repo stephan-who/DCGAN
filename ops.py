@@ -81,7 +81,7 @@ def conv_cond_concat(value, cond, name='concat'):
     cond_shapes = cond.get_shape().as_list()
 
     with tf.variable_scope(name):
-        return tf.concat(3, [value, cond * tf.ones(value_shapes[0:3] + cond_shapes[3:])])
+        return tf.concat([value, cond * tf.ones(value_shapes[0:3] + cond_shapes[3:])],3)
 
 
 # Batch Normalization 层
